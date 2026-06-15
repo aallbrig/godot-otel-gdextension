@@ -95,55 +95,55 @@ task test       # run GDUnit4 tests headless
 
 ### Traces (`opentelemetry::trace`)
 
-| C++ SDK Type | GDScript Class | Status | Notes |
-|---|---|---|---|
-| `TracerProvider` | `OtelTracerProvider` | Planned | Singleton access |
-| `Tracer` | `OtelTracer` | Planned | `get_tracer(name, version)` |
-| `Span` | `OtelSpan` | Planned | set_attribute, add_event, set_status, end |
-| `SpanContext` | `OtelSpanContext` | Planned | trace_id, span_id, is_valid |
-| `SpanKind` | `OtelSpan.Kind.*` | Planned | INTERNAL, SERVER, CLIENT, PRODUCER, CONSUMER |
-| `StatusCode` | `OtelSpan.Status.*` | Planned | UNSET, OK, ERROR |
-| `Scope` (context propagation) | — | — | Not exposed; managed by SDK internally |
-| `TraceState` | — | — | Not planned |
+| C++ SDK Type                  | GDScript Class       | Status  | Notes                                        |
+| ----------------------------- | -------------------- | ------- | -------------------------------------------- |
+| `TracerProvider`              | `OtelTracerProvider` | Planned | Singleton access                             |
+| `Tracer`                      | `OtelTracer`         | Planned | `get_tracer(name, version)`                  |
+| `Span`                        | `OtelSpan`           | Planned | set_attribute, add_event, set_status, end    |
+| `SpanContext`                 | `OtelSpanContext`    | Planned | trace_id, span_id, is_valid                  |
+| `SpanKind`                    | `OtelSpan.Kind.*`    | Planned | INTERNAL, SERVER, CLIENT, PRODUCER, CONSUMER |
+| `StatusCode`                  | `OtelSpan.Status.*`  | Planned | UNSET, OK, ERROR                             |
+| `Scope` (context propagation) | —                    | —       | Not exposed; managed by SDK internally       |
+| `TraceState`                  | —                    | —       | Not planned                                  |
 
 ### Metrics (`opentelemetry::metrics`)
 
-| C++ SDK Type | GDScript Class | Status | Notes |
-|---|---|---|---|
-| `MeterProvider` | `OtelMeterProvider` | Planned | Singleton access |
-| `Meter` | `OtelMeter` | Planned | `get_meter(name, version)` |
-| `Counter<uint64_t>` | `OtelCounter` | Planned | `add(value, attributes)` |
-| `Histogram<double>` | `OtelHistogram` | Planned | `record(value, attributes)` |
-| `Gauge<double>` | `OtelGauge` | — | Not yet planned |
-| `UpDownCounter<int64_t>` | `OtelUpDownCounter` | — | Not yet planned |
-| `ObservableCounter` | — | — | Callback-based; GDScript binding complex |
-| `ObservableGauge` | — | — | Not planned |
+| C++ SDK Type             | GDScript Class      | Status  | Notes                                    |
+| ------------------------ | ------------------- | ------- | ---------------------------------------- |
+| `MeterProvider`          | `OtelMeterProvider` | Planned | Singleton access                         |
+| `Meter`                  | `OtelMeter`         | Planned | `get_meter(name, version)`               |
+| `Counter<uint64_t>`      | `OtelCounter`       | Planned | `add(value, attributes)`                 |
+| `Histogram<double>`      | `OtelHistogram`     | Planned | `record(value, attributes)`              |
+| `Gauge<double>`          | `OtelGauge`         | —       | Not yet planned                          |
+| `UpDownCounter<int64_t>` | `OtelUpDownCounter` | —       | Not yet planned                          |
+| `ObservableCounter`      | —                   | —       | Callback-based; GDScript binding complex |
+| `ObservableGauge`        | —                   | —       | Not planned                              |
 
 ### Logs (`opentelemetry::logs`)
 
-| C++ SDK Type | GDScript Class | Status | Notes |
-|---|---|---|---|
-| `LoggerProvider` | `OtelLoggerProvider` | Planned | Singleton access |
-| `Logger` | `OtelLogger` | Planned | debug/info/warn/error + emit |
-| `LogRecord` | — | Planned | Created internally; not directly exposed |
-| `Severity` | `OtelLogger.Severity.*` | Planned | TRACE through FATAL |
+| C++ SDK Type     | GDScript Class          | Status  | Notes                                    |
+| ---------------- | ----------------------- | ------- | ---------------------------------------- |
+| `LoggerProvider` | `OtelLoggerProvider`    | Planned | Singleton access                         |
+| `Logger`         | `OtelLogger`            | Planned | debug/info/warn/error + emit             |
+| `LogRecord`      | —                       | Planned | Created internally; not directly exposed |
+| `Severity`       | `OtelLogger.Severity.*` | Planned | TRACE through FATAL                      |
 
 ### Context & Propagation
 
-| C++ SDK Type | GDScript Class | Status | Notes |
-|---|---|---|---|
-| `Baggage` | `OtelBaggage` | — | Not yet planned |
-| `TextMapPropagator` | — | — | Not planned (server-side concern) |
-| `W3CTraceContextPropagator` | — | — | Not planned |
+| C++ SDK Type                | GDScript Class | Status | Notes                             |
+| --------------------------- | -------------- | ------ | --------------------------------- |
+| `Baggage`                   | `OtelBaggage`  | —      | Not yet planned                   |
+| `TextMapPropagator`         | —              | —      | Not planned (server-side concern) |
+| `W3CTraceContextPropagator` | —              | —      | Not planned                       |
 
 ### Exporters & SDK Config (`OtelInit`)
 
-| Capability | Status | Notes |
-|---|---|---|
-| `configure_stdout()` | Planned | OStream exporter for all signals |
-| `configure_otlp_http(url)` | — | Not yet implemented |
-| `configure_otlp_grpc(endpoint)` | — | Not yet implemented |
-| `shutdown()` | Planned | Flush and shutdown all providers |
+| Capability                      | Status  | Notes                            |
+| ------------------------------- | ------- | -------------------------------- |
+| `configure_stdout()`            | Planned | OStream exporter for all signals |
+| `configure_otlp_http(url)`      | —       | Not yet implemented              |
+| `configure_otlp_grpc(endpoint)` | —       | Not yet implemented              |
+| `shutdown()`                    | Planned | Flush and shutdown all providers |
 
 ---
 

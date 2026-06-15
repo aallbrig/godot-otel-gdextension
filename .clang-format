@@ -15,11 +15,11 @@ BreakBeforeBraces: Attach
 SortIncludes: CaseSensitive
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<godot_cpp/'
+  - Regex: "^<godot_cpp/"
     Priority: 1
-  - Regex: '^<opentelemetry/'
+  - Regex: "^<opentelemetry/"
     Priority: 2
-  - Regex: '^<'
+  - Regex: "^<"
     Priority: 3
   - Regex: '^"'
     Priority: 4

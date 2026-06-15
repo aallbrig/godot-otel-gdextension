@@ -1,12 +1,12 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
-version: '3'
+version: "3"
 
 vars:
   SESSION: godot-otel
   SITE_DIR: site
-  SITE_PORT: '1320'
+  SITE_PORT: "1320"
   DEMO_DIR: demo
   BUILD_DIR: build
   GODOT: '{{.GODOT | default "/home/aallbright/bin/godot"}}'
@@ -59,7 +59,7 @@ tasks:
 
   lint:site:
     desc: Check site JS (esbuild dry-run compile)
-    dir: '{{.SITE_DIR}}'
+    dir: "{{.SITE_DIR}}"
     cmds:
       - |
         if [ ! -d node_modules ]; then
@@ -126,7 +126,7 @@ tasks:
 
   test:unit:
     desc: Run GDUnit4 unit tests headless
-    dir: '{{.DEMO_DIR}}'
+    dir: "{{.DEMO_DIR}}"
     cmds:
       - |
         {{.GODOT}} --headless \
@@ -138,7 +138,7 @@ tasks:
 
   test:integration:
     desc: Run GDUnit4 integration tests headless
-    dir: '{{.DEMO_DIR}}'
+    dir: "{{.DEMO_DIR}}"
     cmds:
       - |
         {{.GODOT}} --headless \
@@ -152,7 +152,7 @@ tasks:
 
   site:dev:
     desc: Start Hugo dev server at localhost:{{.SITE_PORT}} with live reload
-    dir: '{{.SITE_DIR}}'
+    dir: "{{.SITE_DIR}}"
     cmds:
       - |
         if [ ! -d node_modules ]; then
@@ -167,7 +167,7 @@ tasks:
 
   site:build:
     desc: Build the Hugo site (minified)
-    dir: '{{.SITE_DIR}}'
+    dir: "{{.SITE_DIR}}"
     cmds:
       - |
         if [ ! -d node_modules ]; then
@@ -178,7 +178,7 @@ tasks:
 
   site:install:
     desc: Install Hugo module and npm dependencies for the site
-    dir: '{{.SITE_DIR}}'
+    dir: "{{.SITE_DIR}}"
     cmds:
       - hugo mod tidy
       - npm ci
