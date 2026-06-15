@@ -34,16 +34,17 @@ endif()
 set(OTEL_CPP_VERSION "v1.18.0" CACHE STRING "opentelemetry-cpp git tag")
 set(OTEL_CPP_DIR "${CMAKE_SOURCE_DIR}/thirdparty/opentelemetry-cpp")
 
-set(BUILD_TESTING       OFF CACHE BOOL "" FORCE)
-set(WITH_ABSEIL         OFF CACHE BOOL "" FORCE)
-set(WITH_STL            ON  CACHE BOOL "" FORCE)
-set(WITH_OTLP_HTTP      ON  CACHE BOOL "" FORCE)
-set(WITH_OTLP_GRPC      OFF CACHE BOOL "" FORCE)
-set(WITH_PROMETHEUS     OFF CACHE BOOL "" FORCE)
-set(WITH_EXAMPLES       OFF CACHE BOOL "" FORCE)
-set(WITH_BENCHMARK      OFF CACHE BOOL "" FORCE)
-set(WITH_FUNC_TESTS     OFF CACHE BOOL "" FORCE)
-set(OPENTELEMETRY_INSTALL OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING           OFF CACHE BOOL "" FORCE)
+set(WITH_ABSEIL             OFF CACHE BOOL "" FORCE)
+set(WITH_STL                ON  CACHE BOOL "" FORCE)
+set(WITH_OTLP_HTTP          OFF CACHE BOOL "" FORCE)
+set(WITH_OTLP_GRPC          OFF CACHE BOOL "" FORCE)
+set(WITH_PROMETHEUS         OFF CACHE BOOL "" FORCE)
+set(WITH_EXAMPLES           OFF CACHE BOOL "" FORCE)
+set(WITH_BENCHMARK          OFF CACHE BOOL "" FORCE)
+set(WITH_FUNC_TESTS         OFF CACHE BOOL "" FORCE)
+set(WITH_ZPAGES             OFF CACHE BOOL "" FORCE)
+set(OPENTELEMETRY_INSTALL   OFF CACHE BOOL "" FORCE)
 
 if(EXISTS "${OTEL_CPP_DIR}/CMakeLists.txt")
     message(STATUS "Using local opentelemetry-cpp submodule at ${OTEL_CPP_DIR}")
@@ -83,7 +84,6 @@ target_link_libraries(godot_otel PRIVATE
     opentelemetry_exporter_ostream_span
     opentelemetry_exporter_ostream_logs
     opentelemetry_exporter_ostream_metrics
-    opentelemetry_exporter_otlp_http
 )
 
 # ── Output naming (matches .gdextension file) ─────────────────────────────────
