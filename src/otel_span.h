@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace opentelemetry {
-namespace v1 {
+inline namespace v1 {
 namespace trace {
 class Span;
 }

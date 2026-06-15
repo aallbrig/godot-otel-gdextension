@@ -7,7 +7,7 @@
 #include <string>
 
 namespace opentelemetry {
-namespace v1 {
+inline namespace v1 {
 namespace metrics {
 template <typename T>
 class Counter;
