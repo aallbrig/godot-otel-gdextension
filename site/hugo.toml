@@ -1,0 +1,45 @@
+baseURL = "https://aallbrig.github.io/godot-otel-gdextension/"
+languageCode = "en-us"
+title = "godot-otel — OpenTelemetry for Godot 4"
+enableRobotsTXT = true
+enableGitInfo = true
+
+[module]
+  [[module.imports]]
+    path = "github.com/imfing/hextra"
+
+[params]
+  description = "Production-grade observability (traces, metrics, logs) for Godot 4 games via the OpenTelemetry C++ SDK."
+  editURL = "https://github.com/aallbrig/godot-otel-gdextension/edit/main/site/content/"
+
+  [params.navbar]
+    displayTitle = true
+    displayLogo = false
+
+  [params.footer]
+    displayCopyright = true
+    displayPoweredBy = true
+
+  [params.highlight]
+    copy = true
+    style = "github-dark"
+
+[menu]
+  [[menu.main]]
+    identifier = "docs"
+    name = "Docs"
+    pageRef = "/docs"
+    weight = 1
+  [[menu.main]]
+    identifier = "github"
+    name = "GitHub"
+    url = "https://github.com/aallbrig/godot-otel-gdextension"
+    weight = 2
+    [menu.main.params]
+      type = "github"
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+  [markup.goldmark.renderer]
+    unsafe = true

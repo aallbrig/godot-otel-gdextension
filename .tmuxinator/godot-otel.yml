@@ -1,0 +1,35 @@
+---
+name: godot-otel
+root: ~/src/godot-otel-gdextension
+
+windows:
+  - dev:
+      layout: main-vertical
+      panes:
+        - dev:
+            - clear
+            - echo "godot-otel dev — ready"
+
+  - watch:
+      layout: tiled
+      panes:
+        - dev:
+            - clear
+            - echo "watch — ready"
+        - format:
+            - task watch:format
+        - lint:
+            - task watch:lint
+        - build:
+            - task watch:build
+        - test:
+            - task watch:test
+
+  - sites:
+      layout: main-vertical
+      panes:
+        - dev:
+            - clear
+            - echo "sites — ready"
+        - hugo:
+            - task site:dev

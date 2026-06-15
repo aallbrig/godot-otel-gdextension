@@ -1,0 +1,302 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+vars:
+  SESSION: godot-otel
+  SITE_DIR: site
+  SITE_PORT: '1320'
+  DEMO_DIR: demo
+  BUILD_DIR: build
+  GODOT: '{{.GODOT | default "/home/aallbright/bin/godot"}}'
+
+# ── CI / quality gates ────────────────────────────────────────────────────────
+
+tasks:
+  ci:
+    desc: Full CI check — lint, build, test, site:build (no live services required)
+    cmds:
+      - task: lint
+      - task: build
+      - task: test
+      - task: site:build
+
+  # ── Lint ──────────────────────────────────────────────────────────────────
+
+  lint:
+    desc: Lint all source (C++ format check + clang-tidy + site JS)
+    cmds:
+      - task: lint:cpp:format
+      - task: lint:cpp:tidy
+      - task: lint:site
+
+  lint:cpp:format:
+    desc: Verify C++ formatting with clang-format (dry-run)
+    cmds:
+      - |
+        if ! command -v clang-format &>/dev/null; then
+          echo "clang-format not found — run: task setup:tools"
+          exit 1
+        fi
+        find src/ -name '*.cpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
+
+  lint:cpp:tidy:
+    desc: Run clang-tidy static analysis on C++ sources
+    cmds:
+      - |
+        if ! command -v clang-tidy &>/dev/null; then
+          echo "clang-tidy not found — run: task setup:tools"
+          exit 1
+        fi
+        if [ ! -d "{{.BUILD_DIR}}" ]; then
+          echo "build/ not found — run: task build first"
+          exit 1
+        fi
+        find src/ -name '*.cpp' | xargs clang-tidy \
+          -p {{.BUILD_DIR}} \
+          --warnings-as-errors='*'
+
+  lint:site:
+    desc: Check site JS (esbuild dry-run compile)
+    dir: '{{.SITE_DIR}}'
+    cmds:
+      - |
+        if [ ! -d node_modules ]; then
+          npm ci
+        fi
+        npx esbuild assets/js/otel.js --bundle --platform=browser --target=es2020 \
+          --log-level=error >/dev/null
+
+  # ── Format ────────────────────────────────────────────────────────────────
+
+  format:
+    desc: Auto-format all C++ sources with clang-format (in-place)
+    cmds:
+      - |
+        if ! command -v clang-format &>/dev/null; then
+          echo "clang-format not found — run: task setup:tools"
+          exit 1
+        fi
+        find src/ -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+        echo "Formatted all C++ files."
+
+  # ── Build ─────────────────────────────────────────────────────────────────
+
+  build:
+    desc: CMake configure + compile the GDExtension
+    cmds:
+      - task: build:configure
+      - task: build:compile
+
+  build:configure:
+    desc: Configure CMake (downloads deps via FetchContent if needed)
+    cmds:
+      - |
+        cmake -B {{.BUILD_DIR}} -S . \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+  build:compile:
+    desc: Compile the GDExtension shared library
+    cmds:
+      - cmake --build {{.BUILD_DIR}} --parallel $(nproc)
+
+  build:release:
+    desc: Build a release (optimised) binary
+    cmds:
+      - |
+        cmake -B {{.BUILD_DIR}}/release -S . \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_DEBUG=OFF
+        cmake --build {{.BUILD_DIR}}/release --parallel $(nproc)
+
+  build:clean:
+    desc: Remove all CMake build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+
+  # ── Test ──────────────────────────────────────────────────────────────────
+
+  test:
+    desc: Run all tests (unit + integration) via GDUnit4 headless
+    cmds:
+      - task: test:unit
+      - task: test:integration
+
+  test:unit:
+    desc: Run GDUnit4 unit tests headless
+    dir: '{{.DEMO_DIR}}'
+    cmds:
+      - |
+        {{.GODOT}} --headless \
+          -s res://addons/gdunit4/runtest.gd \
+          --add res://test/unit \
+          --report-path /tmp/gdunit4-unit \
+          2>&1 | tee /tmp/gdunit4-unit.log
+        grep -E 'FAILED|ERROR' /tmp/gdunit4-unit.log && exit 1 || true
+
+  test:integration:
+    desc: Run GDUnit4 integration tests headless
+    dir: '{{.DEMO_DIR}}'
+    cmds:
+      - |
+        {{.GODOT}} --headless \
+          -s res://addons/gdunit4/runtest.gd \
+          --add res://test/integration \
+          --report-path /tmp/gdunit4-integration \
+          2>&1 | tee /tmp/gdunit4-integration.log
+        grep -E 'FAILED|ERROR' /tmp/gdunit4-integration.log && exit 1 || true
+
+  # ── Site ──────────────────────────────────────────────────────────────────
+
+  site:dev:
+    desc: Start Hugo dev server at localhost:{{.SITE_PORT}} with live reload
+    dir: '{{.SITE_DIR}}'
+    cmds:
+      - |
+        if [ ! -d node_modules ]; then
+          npm ci
+        fi
+        npm run otel:build
+        hugo server \
+          --logLevel warn \
+          -p {{.SITE_PORT}} \
+          --bind 0.0.0.0 \
+          --disableFastRender
+
+  site:build:
+    desc: Build the Hugo site (minified)
+    dir: '{{.SITE_DIR}}'
+    cmds:
+      - |
+        if [ ! -d node_modules ]; then
+          npm ci
+        fi
+        npm run otel:build
+        hugo --minify
+
+  site:install:
+    desc: Install Hugo module and npm dependencies for the site
+    dir: '{{.SITE_DIR}}'
+    cmds:
+      - hugo mod tidy
+      - npm ci
+
+  # ── Setup ─────────────────────────────────────────────────────────────────
+
+  setup:
+    desc: One-time dev environment setup
+    cmds:
+      - task: setup:submodules
+      - task: setup:tools
+      - task: site:install
+
+  setup:submodules:
+    desc: Init and update all git submodules
+    cmds:
+      - git submodule update --init --recursive
+
+  setup:tools:
+    desc: Install system build tools (cmake, clang-format, clang-tidy)
+    cmds:
+      - |
+        sudo apt-get update -qq
+        sudo apt-get install -y cmake clang clang-format clang-tidy ninja-build
+
+  # ── Watch tasks (run inside tmuxinator watch window) ──────────────────────
+
+  watch:format:
+    desc: Watch src/ and auto-format C++ files on change
+    cmds:
+      - |
+        watchexec \
+          --exts cpp,h \
+          --watch src/ \
+          --restart \
+          -- bash -c 'find src/ -name "*.cpp" -o -name "*.h" | xargs clang-format -i && echo "[format] done"'
+
+  watch:lint:
+    desc: Watch src/ and run clang-format dry-run on change (CI parity)
+    cmds:
+      - |
+        watchexec \
+          --exts cpp,h \
+          --watch src/ \
+          --restart \
+          -- bash -c 'find src/ -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror && echo "[lint:format] ok"'
+
+  watch:build:
+    desc: Watch src/ and rebuild the GDExtension on change
+    cmds:
+      - |
+        watchexec \
+          --exts cpp,h \
+          --watch src/ \
+          --restart \
+          -- cmake --build {{.BUILD_DIR}} --parallel $(nproc)
+
+  watch:test:
+    desc: Watch test/ and re-run unit tests on change
+    cmds:
+      - |
+        watchexec \
+          --exts gd \
+          --watch {{.DEMO_DIR}}/test/ \
+          --restart \
+          -- task test:unit
+
+  # ── Dev session ───────────────────────────────────────────────────────────
+
+  dev:
+    desc: Start the godot-otel dev environment; attaches if session already running
+    cmds:
+      - |
+        if tmux has-session -t {{.SESSION}} 2>/dev/null; then
+          echo "Session '{{.SESSION}}' is already running — attaching."
+          if [ -n "$TMUX" ]; then
+            tmux switch-client -t {{.SESSION}}
+          else
+            tmux attach -t {{.SESSION}}
+          fi
+          exit 0
+        fi
+        echo "Starting {{.SESSION}} dev session..."
+        tmuxinator start -p .tmuxinator/godot-otel.yml
+        echo ""
+        echo "  Session '{{.SESSION}}' — windows:"
+        echo "    dev    — pane 0: ready shell"
+        echo "    watch  — pane 0: ready, pane 1: format, pane 2: lint, pane 3: build, pane 4: test"
+        echo "    sites  — pane 0: ready, pane 1: Hugo at localhost:{{.SITE_PORT}}"
+        echo ""
+
+  dev:recycle:
+    desc: Kill and restart the session (must be called from outside it)
+    cmds:
+      - |
+        if [ -n "$TMUX" ]; then
+          CURRENT=$(tmux display-message -p '#S' 2>/dev/null || echo "")
+          if [ "$CURRENT" = "{{.SESSION}}" ]; then
+            echo "ERROR: Cannot recycle from inside the session. Detach first (Ctrl-b d)." >&2
+            exit 1
+          fi
+        fi
+        if tmux has-session -t {{.SESSION}} 2>/dev/null; then
+          tmux kill-session -t {{.SESSION}}
+          echo "Session '{{.SESSION}}' stopped."
+        fi
+        tmuxinator start -p .tmuxinator/godot-otel.yml
+
+  dev:attach:
+    desc: Reattach to the dev session without restarting anything
+    cmds:
+      - |
+        if ! tmux has-session -t {{.SESSION}} 2>/dev/null; then
+          echo "No session '{{.SESSION}}'. Run 'task dev' first."
+          exit 1
+        fi
+        if [ -n "$TMUX" ]; then
+          tmux switch-client -t {{.SESSION}}
+        else
+          tmux attach -t {{.SESSION}}
+        fi

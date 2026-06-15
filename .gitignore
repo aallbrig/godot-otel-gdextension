@@ -1,0 +1,39 @@
+# Build outputs
+build/
+demo/addons/otel/bin/*.so
+demo/addons/otel/bin/*.dll
+demo/addons/otel/bin/*.dylib
+
+# Godot editor files
+demo/.godot/
+demo/*.import
+demo/export_presets.cfg
+
+# Hugo
+site/public/
+site/resources/
+site/.hugo_build.lock
+site/node_modules/
+
+# Go module cache
+site/go.sum
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Pre-commit cache
+.pre-commit-cache/
+
+# GDUnit4 test reports
+demo/test-results/

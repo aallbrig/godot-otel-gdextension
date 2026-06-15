@@ -1,0 +1,24 @@
+{
+  "name": "godot-otel-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hugo site for godot-otel-gdextension",
+  "scripts": {
+    "otel:build": "esbuild assets/js/otel.js --bundle --outfile=static/js/otel.bundle.js --platform=browser --target=es2020 --minify"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/core": "^1.30.0",
+    "@opentelemetry/resources": "^1.30.0",
+    "@opentelemetry/sdk-trace-base": "^1.30.0",
+    "@opentelemetry/sdk-trace-web": "^1.30.0",
+    "@opentelemetry/sdk-logs": "^0.57.0",
+    "@opentelemetry/semantic-conventions": "^1.30.0",
+    "@opentelemetry/instrumentation": "^0.57.0",
+    "@opentelemetry/instrumentation-fetch": "^0.57.0",
+    "@opentelemetry/instrumentation-document-load": "^0.44.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

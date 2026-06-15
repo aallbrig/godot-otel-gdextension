@@ -1,0 +1,200 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+jobs:
+
+  # ── C++ lint: format check ────────────────────────────────────────────────
+  lint-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          find src/ -name '*.cpp' -o -name '*.h' \
+            | xargs clang-format --dry-run --Werror
+
+  # ── C++ build ─────────────────────────────────────────────────────────────
+  build:
+    name: Build (Linux x86_64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y cmake clang ninja-build libssl-dev libcurl4-openssl-dev
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Upload compiled extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdextension-linux-debug
+          path: demo/addons/otel/bin/
+          retention-days: 3
+
+  # ── C++ lint: clang-tidy ─────────────────────────────────────────────────
+  lint-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y cmake clang clang-tidy ninja-build libssl-dev libcurl4-openssl-dev
+
+      - name: Configure CMake (generate compile_commands.json)
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++
+
+      - name: Run clang-tidy
+        run: |
+          find src/ -name '*.cpp' | xargs clang-tidy \
+            -p build \
+            --warnings-as-errors='*'
+
+  # ── GDUnit4 tests ─────────────────────────────────────────────────────────
+  test:
+    name: GDUnit4 tests (headless)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download compiled extension
+        uses: actions/download-artifact@v4
+        with:
+          name: gdextension-linux-debug
+          path: demo/addons/otel/bin/
+
+      - name: Make library executable
+        run: chmod +x demo/addons/otel/bin/*.so || true
+
+      - name: Install Godot
+        run: |
+          GODOT_VERSION="4.3-stable"
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip" \
+            -O /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/
+          chmod +x "/tmp/Godot_v${GODOT_VERSION}_linux.x86_64"
+          echo "GODOT=/tmp/Godot_v${GODOT_VERSION}_linux.x86_64" >> $GITHUB_ENV
+
+      - name: Run unit tests
+        working-directory: demo
+        run: |
+          $GODOT --headless \
+            -s res://addons/gdunit4/runtest.gd \
+            --add res://test/unit \
+            --report-path /tmp/gdunit4-unit \
+            2>&1 | tee /tmp/gdunit4-unit.log
+          grep -E 'FAILED|ERROR' /tmp/gdunit4-unit.log && exit 1 || true
+
+      - name: Run integration tests
+        working-directory: demo
+        run: |
+          $GODOT --headless \
+            -s res://addons/gdunit4/runtest.gd \
+            --add res://test/integration \
+            --report-path /tmp/gdunit4-integration \
+            2>&1 | tee /tmp/gdunit4-integration.log
+          grep -E 'FAILED|ERROR' /tmp/gdunit4-integration.log && exit 1 || true
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gdunit4-reports
+          path: /tmp/gdunit4-*/
+          retention-days: 7
+
+  # ── Secret scanning ────────────────────────────────────────────────────────
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Hugo site build ────────────────────────────────────────────────────────
+  site:
+    name: Hugo build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go (for Hugo modules)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: 'latest'
+          extended: true
+
+      - name: Install npm deps
+        working-directory: site
+        run: npm ci
+
+      - name: Build OTel JS bundle
+        working-directory: site
+        run: npm run otel:build
+
+      - name: Build Hugo
+        working-directory: site
+        run: hugo --minify
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/public/

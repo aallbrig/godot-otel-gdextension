@@ -1,0 +1,14 @@
+[submodule "thirdparty/godot-cpp"]
+	path = thirdparty/godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git
+	branch = godot-4.3-stable
+
+[submodule "thirdparty/opentelemetry-cpp"]
+	path = thirdparty/opentelemetry-cpp
+	url = https://github.com/open-telemetry/opentelemetry-cpp.git
+	branch = main
+
+[submodule "demo/addons/gdunit4"]
+	path = demo/addons/gdunit4
+	url = https://github.com/MikeSchulze/gdUnit4.git
+	branch = master

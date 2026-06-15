@@ -1,0 +1,29 @@
+[configuration]
+
+entry_symbol = "gdextension_init"
+compatibility_minimum = "4.1"
+reloadable = true
+
+[libraries]
+
+linux.debug.x86_64 = "res://addons/otel/bin/libotel.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/otel/bin/libotel.linux.template_release.x86_64.so"
+linux.debug.arm64 = "res://addons/otel/bin/libotel.linux.template_debug.arm64.so"
+linux.release.arm64 = "res://addons/otel/bin/libotel.linux.template_release.arm64.so"
+windows.debug.x86_64 = "res://addons/otel/bin/libotel.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/otel/bin/libotel.windows.template_release.x86_64.dll"
+macos.debug = "res://addons/otel/bin/libotel.macos.template_debug.universal.dylib"
+macos.release = "res://addons/otel/bin/libotel.macos.template_release.universal.dylib"
+
+[icons]
+
+OtelInit = "res://addons/otel/icons/otel_init.svg"
+OtelTracerProvider = "res://addons/otel/icons/otel_tracer_provider.svg"
+OtelTracer = "res://addons/otel/icons/otel_tracer.svg"
+OtelSpan = "res://addons/otel/icons/otel_span.svg"
+OtelMeterProvider = "res://addons/otel/icons/otel_meter_provider.svg"
+OtelMeter = "res://addons/otel/icons/otel_meter.svg"
+OtelCounter = "res://addons/otel/icons/otel_counter.svg"
+OtelHistogram = "res://addons/otel/icons/otel_histogram.svg"
+OtelLoggerProvider = "res://addons/otel/icons/otel_logger_provider.svg"
+OtelLogger = "res://addons/otel/icons/otel_logger.svg"
