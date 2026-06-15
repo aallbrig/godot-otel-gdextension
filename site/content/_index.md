@@ -44,19 +44,19 @@ func _ready():
 
 {{< cards >}}
 
-{{< card title="Real distributed traces" icon="git-branch"
+{{< card title="Real distributed traces" icon="share"
     subtitle="Correlate game events across clients, servers, and services with W3C-standard trace context. See exactly where 200ms went." >}}
 
 {{< card title="OTLP-native" icon="arrow-right"
     subtitle="Export to Honeycomb, Grafana Tempo, Jaeger, or any OpenTelemetry-compatible backend. No vendor lock-in." >}}
 
-{{< card title="Zero GDScript overhead" icon="zap"
+{{< card title="Zero GDScript overhead" icon="lightning-bolt"
     subtitle="The heavy lifting lives in the C++ extension. GDScript calls are thin wrappers — instrumentation doesn't cost frames." >}}
 
-{{< card title="Wide events" icon="layers"
+{{< card title="Wide events" icon="collection"
     subtitle="Capture the full context of a player action in a single span. One rich event beats ten narrow ones for debugging." >}}
 
-{{< card title="All three signals" icon="bar-chart"
+{{< card title="All three signals" icon="chart-bar"
     subtitle="Traces for request flows, metrics for counters and histograms, structured logs for record-keeping — from a single SDK." >}}
 
 {{< card title="Open source (MIT)" icon="code"

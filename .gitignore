@@ -15,8 +15,7 @@ site/resources/
 site/.hugo_build.lock
 site/node_modules/
 
-# Go module cache
-site/go.sum
+# Go module cache (note: site/go.sum IS committed for reproducible builds)
 
 # CMake
 CMakeCache.txt

@@ -3,6 +3,11 @@ languageCode = "en-us"
 title = "godot-otel — OpenTelemetry for Godot 4"
 enableRobotsTXT = true
 enableGitInfo = true
+disableKinds = ["RSS"]
+
+[author]
+  name = "Andrew Allbright"
+  email = "aallbrig@gmail.com"
 
 [module]
   [[module.imports]]
@@ -10,7 +15,9 @@ enableGitInfo = true
 
 [params]
   description = "Production-grade observability (traces, metrics, logs) for Godot 4 games via the OpenTelemetry C++ SDK."
-  editURL = "https://github.com/aallbrig/godot-otel-gdextension/edit/main/site/content/"
+  [params.editURL]
+    enable = true
+    base = "https://github.com/aallbrig/godot-otel-gdextension/edit/main/site/content/"
 
   [params.navbar]
     displayTitle = true
@@ -19,10 +26,6 @@ enableGitInfo = true
   [params.footer]
     displayCopyright = true
     displayPoweredBy = true
-
-  [params.highlight]
-    copy = true
-    style = "github-dark"
 
 [menu]
   [[menu.main]]
