@@ -30,4 +30,4 @@ repos:
     hooks:
       - id: prettier
         types_or: [javascript, yaml, toml, markdown]
-        exclude: '^(\.clang-format|site/content/)'
+        exclude: '^site/content/'
