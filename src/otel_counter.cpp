@@ -10,8 +10,8 @@
 namespace godot {
 
 namespace {
-std::vector<std::pair<std::string, opentelemetry::common::AttributeValue>>
-dict_to_attrs(const Dictionary& dict) {
+std::vector<std::pair<std::string, opentelemetry::common::AttributeValue>> dict_to_attrs(
+    const Dictionary& dict) {
     std::vector<std::pair<std::string, opentelemetry::common::AttributeValue>> result;
     Array keys = dict.keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -29,8 +29,7 @@ dict_to_attrs(const Dictionary& dict) {
                 break;
             default:
                 result.emplace_back(
-                    key, opentelemetry::nostd::string_view(
-                             String(val).utf8().get_data()));
+                    key, opentelemetry::nostd::string_view(String(val).utf8().get_data()));
                 break;
         }
     }
@@ -39,8 +38,7 @@ dict_to_attrs(const Dictionary& dict) {
 }  // namespace
 
 void OtelCounter::_bind_methods() {
-    ClassDB::bind_method(
-        D_METHOD("add", "value", "attributes"), &OtelCounter::add);
+    ClassDB::bind_method(D_METHOD("add", "value", "attributes"), &OtelCounter::add);
 }
 
 void OtelCounter::set_internal_counter(
@@ -51,11 +49,9 @@ void OtelCounter::set_internal_counter(
 void OtelCounter::add(int64_t value, const Dictionary& attributes) {
     if (!_counter || value < 0) return;
     auto attrs = dict_to_attrs(attributes);
-    std::map<std::string, opentelemetry::common::AttributeValue> attr_map(
-        attrs.begin(), attrs.end());
-    _counter->Add(
-        static_cast<uint64_t>(value),
-        opentelemetry::common::MakeAttributes(attr_map));
+    std::map<std::string, opentelemetry::common::AttributeValue> attr_map(attrs.begin(),
+                                                                          attrs.end());
+    _counter->Add(static_cast<uint64_t>(value), opentelemetry::common::MakeAttributes(attr_map));
 }
 
 }  // namespace godot

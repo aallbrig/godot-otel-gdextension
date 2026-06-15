@@ -1,5 +1,10 @@
 #include "register_types.h"
 
+#include <godot_cpp/core/defs.hpp>
+#include <godot_cpp/godot.hpp>
+
+#include <gdextension_interface.h>
+
 #include "otel_counter.h"
 #include "otel_histogram.h"
 #include "otel_init.h"
@@ -10,10 +15,6 @@
 #include "otel_span.h"
 #include "otel_tracer.h"
 #include "otel_tracer_provider.h"
-
-#include <gdextension_interface.h>
-#include <godot_cpp/core/defs.hpp>
-#include <godot_cpp/godot.hpp>
 
 using namespace godot;
 
@@ -37,12 +38,10 @@ void uninitialize_otel_module(ModuleInitializationLevel p_level) {
 }
 
 extern "C" {
-GDExtensionBool GDE_EXPORT gdextension_init(
-    GDExtensionInterfaceGetProcAddress p_get_proc_address,
-    const GDExtensionClassLibraryPtr p_library,
-    GDExtensionInitialization* r_initialization) {
-    godot::GDExtensionBinding::InitObject init_obj(
-        p_get_proc_address, p_library, r_initialization);
+GDExtensionBool GDE_EXPORT gdextension_init(GDExtensionInterfaceGetProcAddress p_get_proc_address,
+                                            const GDExtensionClassLibraryPtr p_library,
+                                            GDExtensionInitialization* r_initialization) {
+    godot::GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
 
     init_obj.register_initializer(initialize_otel_module);
     init_obj.register_terminator(uninitialize_otel_module);

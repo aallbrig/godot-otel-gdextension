@@ -4,6 +4,7 @@
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/variant.hpp>
+
 #include <memory>
 
 namespace opentelemetry {

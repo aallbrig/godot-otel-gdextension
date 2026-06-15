@@ -9,20 +9,13 @@
 namespace godot {
 
 void OtelLogger::_bind_methods() {
-    ClassDB::bind_method(
-        D_METHOD("emit", "severity", "body", "attributes"), &OtelLogger::emit);
-    ClassDB::bind_method(
-        D_METHOD("trace", "body", "attributes"), &OtelLogger::trace);
-    ClassDB::bind_method(
-        D_METHOD("debug", "body", "attributes"), &OtelLogger::debug);
-    ClassDB::bind_method(
-        D_METHOD("info", "body", "attributes"), &OtelLogger::info);
-    ClassDB::bind_method(
-        D_METHOD("warn", "body", "attributes"), &OtelLogger::warn);
-    ClassDB::bind_method(
-        D_METHOD("error", "body", "attributes"), &OtelLogger::error);
-    ClassDB::bind_method(
-        D_METHOD("fatal", "body", "attributes"), &OtelLogger::fatal);
+    ClassDB::bind_method(D_METHOD("emit", "severity", "body", "attributes"), &OtelLogger::emit);
+    ClassDB::bind_method(D_METHOD("trace", "body", "attributes"), &OtelLogger::trace);
+    ClassDB::bind_method(D_METHOD("debug", "body", "attributes"), &OtelLogger::debug);
+    ClassDB::bind_method(D_METHOD("info", "body", "attributes"), &OtelLogger::info);
+    ClassDB::bind_method(D_METHOD("warn", "body", "attributes"), &OtelLogger::warn);
+    ClassDB::bind_method(D_METHOD("error", "body", "attributes"), &OtelLogger::error);
+    ClassDB::bind_method(D_METHOD("fatal", "body", "attributes"), &OtelLogger::fatal);
 
     BIND_ENUM_CONSTANT(SEV_TRACE);
     BIND_ENUM_CONSTANT(SEV_DEBUG);
@@ -32,8 +25,7 @@ void OtelLogger::_bind_methods() {
     BIND_ENUM_CONSTANT(SEV_FATAL);
 }
 
-void OtelLogger::set_internal_logger(
-    std::shared_ptr<opentelemetry::v1::logs::Logger> logger) {
+void OtelLogger::set_internal_logger(std::shared_ptr<opentelemetry::v1::logs::Logger> logger) {
     _logger = std::move(logger);
 }
 
@@ -45,8 +37,7 @@ void OtelLogger::emit(int severity, const String& body, const Dictionary& attrib
 
     record->SetSeverity(static_cast<opentelemetry::logs::Severity>(severity));
     record->SetBody(opentelemetry::nostd::string_view(body.utf8().get_data()));
-    record->SetTimestamp(opentelemetry::common::SystemTimestamp(
-        std::chrono::system_clock::now()));
+    record->SetTimestamp(opentelemetry::common::SystemTimestamp(std::chrono::system_clock::now()));
 
     Array keys = attributes.keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -64,8 +55,7 @@ void OtelLogger::emit(int severity, const String& body, const Dictionary& attrib
                 break;
             default:
                 record->SetAttribute(
-                    key, opentelemetry::nostd::string_view(
-                             String(val).utf8().get_data()));
+                    key, opentelemetry::nostd::string_view(String(val).utf8().get_data()));
                 break;
         }
     }

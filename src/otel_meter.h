@@ -2,6 +2,7 @@
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/string.hpp>
+
 #include <memory>
 
 namespace opentelemetry {
@@ -29,11 +30,11 @@ protected:
 public:
     void set_internal_meter(std::shared_ptr<opentelemetry::v1::metrics::Meter> meter);
 
-    Ref<OtelCounter> create_int_counter(
-        const String& name, const String& description, const String& unit);
+    Ref<OtelCounter> create_int_counter(const String& name, const String& description,
+                                        const String& unit);
 
-    Ref<OtelHistogram> create_double_histogram(
-        const String& name, const String& description, const String& unit);
+    Ref<OtelHistogram> create_double_histogram(const String& name, const String& description,
+                                               const String& unit);
 };
 
 }  // namespace godot

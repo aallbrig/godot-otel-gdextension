@@ -23,8 +23,8 @@ std::string to_hex(const uint8_t* data, size_t len) {
 
 // Convert a Godot Dictionary to an OTel attribute map.
 // Returns a vector of pairs we can pass via initializer.
-std::vector<std::pair<std::string, opentelemetry::common::AttributeValue>>
-dict_to_attrs(const Dictionary& dict) {
+std::vector<std::pair<std::string, opentelemetry::common::AttributeValue>> dict_to_attrs(
+    const Dictionary& dict) {
     std::vector<std::pair<std::string, opentelemetry::common::AttributeValue>> result;
     Array keys = dict.keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -42,8 +42,7 @@ dict_to_attrs(const Dictionary& dict) {
                 break;
             default:
                 result.emplace_back(
-                    key, opentelemetry::nostd::string_view(
-                             String(val).utf8().get_data()));
+                    key, opentelemetry::nostd::string_view(String(val).utf8().get_data()));
                 break;
         }
     }
@@ -52,12 +51,10 @@ dict_to_attrs(const Dictionary& dict) {
 }  // namespace
 
 void OtelSpan::_bind_methods() {
-    ClassDB::bind_method(
-        D_METHOD("set_attribute", "key", "value"), &OtelSpan::set_attribute);
-    ClassDB::bind_method(
-        D_METHOD("set_status", "status_code", "description"), &OtelSpan::set_status);
-    ClassDB::bind_method(
-        D_METHOD("add_event", "name", "attributes"), &OtelSpan::add_event);
+    ClassDB::bind_method(D_METHOD("set_attribute", "key", "value"), &OtelSpan::set_attribute);
+    ClassDB::bind_method(D_METHOD("set_status", "status_code", "description"),
+                         &OtelSpan::set_status);
+    ClassDB::bind_method(D_METHOD("add_event", "name", "attributes"), &OtelSpan::add_event);
     ClassDB::bind_method(D_METHOD("end"), &OtelSpan::end);
     ClassDB::bind_method(D_METHOD("get_trace_id"), &OtelSpan::get_trace_id);
     ClassDB::bind_method(D_METHOD("get_span_id"), &OtelSpan::get_span_id);
@@ -69,8 +66,7 @@ void OtelSpan::_bind_methods() {
     BIND_ENUM_CONSTANT(STATUS_ERROR);
 }
 
-void OtelSpan::set_internal_span(
-    std::shared_ptr<opentelemetry::v1::trace::Span> span) {
+void OtelSpan::set_internal_span(std::shared_ptr<opentelemetry::v1::trace::Span> span) {
     _span = std::move(span);
 }
 
@@ -92,8 +88,8 @@ void OtelSpan::set_attribute(const String& key, const Variant& value) {
             _span->SetAttribute(k, static_cast<double>(value));
             break;
         default:
-            _span->SetAttribute(
-                k, opentelemetry::nostd::string_view(String(value).utf8().get_data()));
+            _span->SetAttribute(k,
+                                opentelemetry::nostd::string_view(String(value).utf8().get_data()));
             break;
     }
 }
@@ -118,12 +114,11 @@ void OtelSpan::add_event(const String& name, const Dictionary& attributes) {
     if (!_span || _ended) return;
     auto attrs = dict_to_attrs(attributes);
     // OTel C++ SDK AddEvent expects an attribute map
-    std::map<std::string, opentelemetry::common::AttributeValue> attr_map(
-        attrs.begin(), attrs.end());
-    _span->AddEvent(
-        opentelemetry::nostd::string_view(name.utf8().get_data()),
-        opentelemetry::common::SystemTimestamp(std::chrono::system_clock::now()),
-        opentelemetry::common::MakeAttributes(attr_map));
+    std::map<std::string, opentelemetry::common::AttributeValue> attr_map(attrs.begin(),
+                                                                          attrs.end());
+    _span->AddEvent(opentelemetry::nostd::string_view(name.utf8().get_data()),
+                    opentelemetry::common::SystemTimestamp(std::chrono::system_clock::now()),
+                    opentelemetry::common::MakeAttributes(attr_map));
 }
 
 void OtelSpan::end() {
@@ -155,8 +150,6 @@ bool OtelSpan::is_recording() const {
     return _span->IsRecording();
 }
 
-bool OtelSpan::is_valid() const {
-    return _span != nullptr && !_ended;
-}
+bool OtelSpan::is_valid() const { return _span != nullptr && !_ended; }
 
 }  // namespace godot

@@ -28,18 +28,14 @@ namespace godot {
 
 OtelInit* OtelInit::_singleton = nullptr;
 
-OtelInit::OtelInit() {
-    _singleton = this;
-}
+OtelInit::OtelInit() { _singleton = this; }
 
 OtelInit::~OtelInit() {
     if (_configured) shutdown();
     _singleton = nullptr;
 }
 
-OtelInit* OtelInit::get_singleton() {
-    return _singleton;
-}
+OtelInit* OtelInit::get_singleton() { return _singleton; }
 
 void OtelInit::_bind_methods() {
     ClassDB::bind_static_method("OtelInit", D_METHOD("get_singleton"), &OtelInit::get_singleton);
@@ -58,10 +54,8 @@ void OtelInit::configure_stdout() {
 
     // --- Traces ---
     auto trace_exporter = opentelemetry::exporter::trace::OStreamSpanExporterFactory::Create();
-    auto trace_processor =
-        trace_sdk::SimpleSpanProcessorFactory::Create(std::move(trace_exporter));
-    auto trace_provider =
-        trace_sdk::TracerProviderFactory::Create(std::move(trace_processor));
+    auto trace_processor = trace_sdk::SimpleSpanProcessorFactory::Create(std::move(trace_exporter));
+    auto trace_provider = trace_sdk::TracerProviderFactory::Create(std::move(trace_processor));
     trace_api::Provider::SetTracerProvider(
         opentelemetry::nostd::shared_ptr<trace_api::TracerProvider>(trace_provider.release()));
 
@@ -71,19 +65,16 @@ void OtelInit::configure_stdout() {
     metrics_sdk::PeriodicExportingMetricReaderOptions reader_opts;
     reader_opts.export_interval_millis = std::chrono::milliseconds(5000);
     reader_opts.export_timeout_millis = std::chrono::milliseconds(500);
-    auto metrics_reader =
-        metrics_sdk::PeriodicExportingMetricReaderFactory::Create(
-            std::move(metrics_exporter), reader_opts);
+    auto metrics_reader = metrics_sdk::PeriodicExportingMetricReaderFactory::Create(
+        std::move(metrics_exporter), reader_opts);
     auto metrics_provider = metrics_sdk::MeterProviderFactory::Create();
     static_cast<metrics_sdk::MeterProvider*>(metrics_provider.get())
         ->AddMetricReader(std::move(metrics_reader));
     metrics_api::Provider::SetMeterProvider(
-        opentelemetry::nostd::shared_ptr<metrics_api::MeterProvider>(
-            metrics_provider.release()));
+        opentelemetry::nostd::shared_ptr<metrics_api::MeterProvider>(metrics_provider.release()));
 
     // --- Logs ---
-    auto logs_exporter =
-        opentelemetry::exporter::logs::OStreamLogRecordExporterFactory::Create();
+    auto logs_exporter = opentelemetry::exporter::logs::OStreamLogRecordExporterFactory::Create();
     auto logs_processor =
         logs_sdk::SimpleLogRecordProcessorFactory::Create(std::move(logs_exporter));
     auto logs_provider = logs_sdk::LoggerProviderFactory::Create(std::move(logs_processor));
@@ -105,8 +96,7 @@ void OtelInit::shutdown() {
 
     // Flush + shutdown trace provider
     auto tp = trace_api::Provider::GetTracerProvider();
-    if (auto sdk_tp =
-            dynamic_cast<trace_sdk::TracerProvider*>(tp.get())) {
+    if (auto sdk_tp = dynamic_cast<trace_sdk::TracerProvider*>(tp.get())) {
         sdk_tp->ForceFlush();
         sdk_tp->Shutdown();
     }
@@ -115,8 +105,7 @@ void OtelInit::shutdown() {
 
     // Flush + shutdown metrics provider
     auto mp = metrics_api::Provider::GetMeterProvider();
-    if (auto sdk_mp =
-            dynamic_cast<metrics_sdk::MeterProvider*>(mp.get())) {
+    if (auto sdk_mp = dynamic_cast<metrics_sdk::MeterProvider*>(mp.get())) {
         sdk_mp->ForceFlush();
         sdk_mp->Shutdown();
     }
@@ -125,8 +114,7 @@ void OtelInit::shutdown() {
 
     // Flush + shutdown logs provider
     auto lp = logs_api::Provider::GetLoggerProvider();
-    if (auto sdk_lp =
-            dynamic_cast<logs_sdk::LoggerProvider*>(lp.get())) {
+    if (auto sdk_lp = dynamic_cast<logs_sdk::LoggerProvider*>(lp.get())) {
         sdk_lp->ForceFlush();
         sdk_lp->Shutdown();
     }
@@ -137,8 +125,6 @@ void OtelInit::shutdown() {
     UtilityFunctions::print("OtelInit: shut down");
 }
 
-bool OtelInit::is_configured() const {
-    return _configured;
-}
+bool OtelInit::is_configured() const { return _configured; }
 
 }  // namespace godot
