@@ -17,6 +17,8 @@ windows:
             - task watch:build
         - test:
             - task watch:test
+        - secrets:
+            - task watch:secrets
 
   - sites:
       layout: main-vertical

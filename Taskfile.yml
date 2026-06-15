@@ -246,6 +246,14 @@ tasks:
           --restart \
           -- task test:unit
 
+  watch:secrets:
+    desc: Watch all files and scan for secrets on change
+    cmds:
+      - |
+        watchexec \
+          --restart \
+          -- python3 -m pre_commit run gitleaks --all-files && echo "[secrets] scan passed"
+
   # ── Dev session ───────────────────────────────────────────────────────────
 
   dev:
