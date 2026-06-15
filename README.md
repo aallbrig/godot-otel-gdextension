@@ -1,4 +1,4 @@
-# godot-otel-gdextension
+#godot - otel - gdextension
 
 A [GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/) that exposes the [OpenTelemetry C++ SDK](https://github.com/open-telemetry/opentelemetry-cpp) to GDScript, giving Godot 4 games and tools production-grade observability: distributed traces, metrics, and structured logs exportable to any OTLP-compatible backend (Jaeger, Honeycomb, Grafana, etc.).
 
@@ -10,7 +10,7 @@ func _ready():
     var span   = tracer.start_span("level.load")
     span.set_attribute("level.name", "dungeon_01")
     span.set_attribute("player.id", str(player_id))
-    # ... load level ...
+#... load level...
     span.end()
 ```
 
@@ -27,7 +27,7 @@ Godot has no built-in observability. As games grow — multiplayer, live service
 ### 1. Add to your project
 
 ```bash
-# Copy the addon into your Godot project
+#Copy the addon into your Godot project
 cp -r addons/otel /path/to/your-godot-project/addons/
 ```
 
@@ -39,7 +39,7 @@ Godot will auto-detect `addons/otel/otel.gdextension` and load the extension.
 extends Node
 
 func _ready():
-    # Stdout exporter — swap for OTLP in production
+#Stdout exporter — swap for OTLP in production
     OtelInit.configure_stdout()
 
 func _exit_tree():
@@ -49,19 +49,19 @@ func _exit_tree():
 ### 3. Trace, measure, log
 
 ```gdscript
-# --- Traces ---
+#-- - Traces -- -
 var tracer = OtelTracerProvider.get_instance().get_tracer("game", "1.0.0")
 var span = tracer.start_span("player.action")
 span.set_attribute("action", "attack")
 span.set_attribute("damage", 42)
 span.end()
 
-# --- Metrics ---
+#-- - Metrics -- -
 var meter = OtelMeterProvider.get_instance().get_meter("game", "1.0.0")
 var counter = meter.create_int_counter("player.deaths", "Player death count", "{deaths}")
 counter.add(1, {"cause": "spike_trap", "level": "floor_3"})
 
-# --- Logs ---
+#-- - Logs -- -
 var logger = OtelLoggerProvider.get_instance().get_logger("game")
 logger.info("Player joined session", {"player.id": str(id), "session.id": session_id})
 ```
@@ -74,7 +74,7 @@ logger.info("Player joined session", {"player.id": str(id), "session.id": sessio
 
 ```bash
 sudo apt-get install -y cmake clang clang-format clang-tidy ninja-build
-# vcpkg for dependency management
+#vcpkg for dependency management
 git clone https://github.com/microsoft/vcpkg thirdparty/vcpkg
 ./thirdparty/vcpkg/bootstrap-vcpkg.sh
 ```
