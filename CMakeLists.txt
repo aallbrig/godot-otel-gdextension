@@ -9,35 +9,55 @@ option(GODOT_CPP_SYSTEM_HEADERS "Treat godot-cpp headers as system headers (supp
 option(BUILD_DEBUG "Build in debug mode (maps to Godot template_debug)" ON)
 
 # ── godot-cpp ────────────────────────────────────────────────────────────────
-# Expected as a git submodule at thirdparty/godot-cpp
+# Uses local submodule if present; otherwise FetchContent (CI-friendly).
+include(FetchContent)
+
+set(GODOT_CPP_VERSION "godot-4.3-stable" CACHE STRING "godot-cpp git tag")
 set(GODOT_CPP_DIR "${CMAKE_SOURCE_DIR}/thirdparty/godot-cpp")
-if(NOT EXISTS "${GODOT_CPP_DIR}/CMakeLists.txt")
-    message(FATAL_ERROR
-        "godot-cpp not found at ${GODOT_CPP_DIR}. "
-        "Run: git submodule update --init --recursive")
+
+if(EXISTS "${GODOT_CPP_DIR}/CMakeLists.txt")
+    message(STATUS "Using local godot-cpp submodule at ${GODOT_CPP_DIR}")
+    add_subdirectory("${GODOT_CPP_DIR}" godot-cpp EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "Fetching godot-cpp @ ${GODOT_CPP_VERSION}")
+    FetchContent_Declare(
+        godot-cpp
+        GIT_REPOSITORY https://github.com/godotengine/godot-cpp.git
+        GIT_TAG        "${GODOT_CPP_VERSION}"
+        GIT_SHALLOW    TRUE
+    )
+    FetchContent_MakeAvailable(godot-cpp)
 endif()
-add_subdirectory("${GODOT_CPP_DIR}" godot-cpp EXCLUDE_FROM_ALL)
 
 # ── opentelemetry-cpp ────────────────────────────────────────────────────────
-# Expected as a git submodule at thirdparty/opentelemetry-cpp
+# Uses local submodule if present; otherwise FetchContent (CI-friendly).
+set(OTEL_CPP_VERSION "v1.18.0" CACHE STRING "opentelemetry-cpp git tag")
 set(OTEL_CPP_DIR "${CMAKE_SOURCE_DIR}/thirdparty/opentelemetry-cpp")
-if(NOT EXISTS "${OTEL_CPP_DIR}/CMakeLists.txt")
-    message(FATAL_ERROR
-        "opentelemetry-cpp not found at ${OTEL_CPP_DIR}. "
-        "Run: git submodule update --init --recursive")
-endif()
 
-set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-set(WITH_ABSEIL OFF CACHE BOOL "" FORCE)
-set(WITH_STL ON CACHE BOOL "" FORCE)
-set(WITH_OTLP_HTTP ON CACHE BOOL "" FORCE)
-set(WITH_OTLP_GRPC OFF CACHE BOOL "" FORCE)
-set(WITH_PROMETHEUS OFF CACHE BOOL "" FORCE)
-set(WITH_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(WITH_BENCHMARK OFF CACHE BOOL "" FORCE)
-set(WITH_FUNC_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING       OFF CACHE BOOL "" FORCE)
+set(WITH_ABSEIL         OFF CACHE BOOL "" FORCE)
+set(WITH_STL            ON  CACHE BOOL "" FORCE)
+set(WITH_OTLP_HTTP      ON  CACHE BOOL "" FORCE)
+set(WITH_OTLP_GRPC      OFF CACHE BOOL "" FORCE)
+set(WITH_PROMETHEUS     OFF CACHE BOOL "" FORCE)
+set(WITH_EXAMPLES       OFF CACHE BOOL "" FORCE)
+set(WITH_BENCHMARK      OFF CACHE BOOL "" FORCE)
+set(WITH_FUNC_TESTS     OFF CACHE BOOL "" FORCE)
 set(OPENTELEMETRY_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory("${OTEL_CPP_DIR}" opentelemetry-cpp EXCLUDE_FROM_ALL)
+
+if(EXISTS "${OTEL_CPP_DIR}/CMakeLists.txt")
+    message(STATUS "Using local opentelemetry-cpp submodule at ${OTEL_CPP_DIR}")
+    add_subdirectory("${OTEL_CPP_DIR}" opentelemetry-cpp EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "Fetching opentelemetry-cpp @ ${OTEL_CPP_VERSION}")
+    FetchContent_Declare(
+        opentelemetry-cpp
+        GIT_REPOSITORY https://github.com/open-telemetry/opentelemetry-cpp.git
+        GIT_TAG        "${OTEL_CPP_VERSION}"
+        GIT_SHALLOW    TRUE
+    )
+    FetchContent_MakeAvailable(opentelemetry-cpp)
+endif()
 
 # ── Extension sources ─────────────────────────────────────────────────────────
 file(GLOB SOURCES src/*.cpp)

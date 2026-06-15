@@ -32,13 +32,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install build deps
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y cmake clang ninja-build libssl-dev libcurl4-openssl-dev
+
+      - name: Cache CMake FetchContent deps
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: cmake-deps-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+          restore-keys: cmake-deps-
 
       - name: Configure CMake
         run: |
@@ -65,13 +70,18 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install tools
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y cmake clang clang-tidy ninja-build libssl-dev libcurl4-openssl-dev
+
+      - name: Cache CMake FetchContent deps
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: cmake-deps-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+          restore-keys: cmake-deps-
 
       - name: Configure CMake (generate compile_commands.json)
         run: |
@@ -94,8 +104,6 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Download compiled extension
         uses: actions/download-artifact@v4
