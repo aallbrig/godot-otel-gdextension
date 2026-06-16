@@ -3,16 +3,9 @@
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
-#include <memory>
+#include <opentelemetry/metrics/sync_instruments.h>
 
-namespace opentelemetry {
-inline namespace v1 {
-namespace metrics {
-template <typename T>
-class Histogram;
-}
-}  // namespace v1
-}  // namespace opentelemetry
+#include <memory>
 
 namespace godot {
 

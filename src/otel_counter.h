@@ -3,17 +3,10 @@
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
+#include <opentelemetry/metrics/sync_instruments.h>
+
 #include <memory>
 #include <string>
-
-namespace opentelemetry {
-inline namespace v1 {
-namespace metrics {
-template <typename T>
-class Counter;
-}
-}  // namespace v1
-}  // namespace opentelemetry
 
 namespace godot {
 
