@@ -2,8 +2,10 @@
 
 #include <godot_cpp/core/class_db.hpp>
 
+#include <opentelemetry/context/runtime_context.h>
 #include <opentelemetry/metrics/sync_instruments.h>
 
+#include <map>
 #include <string>
 #include <vector>
 

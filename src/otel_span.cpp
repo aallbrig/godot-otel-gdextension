@@ -132,7 +132,9 @@ String OtelSpan::get_trace_id() const {
     auto ctx = _span->GetContext();
     if (!ctx.IsValid()) return String();
     uint8_t buf[opentelemetry::trace::TraceId::kSize];
-    ctx.trace_id().ToLowerBase16({buf, sizeof(buf)});
+    ctx.trace_id().ToLowerBase16(
+        opentelemetry::nostd::span<char, opentelemetry::trace::TraceId::kSize * 2>(
+            reinterpret_cast<char*>(buf), sizeof(buf)));
     return String(to_hex(buf, sizeof(buf)).c_str());
 }
 
@@ -141,7 +143,9 @@ String OtelSpan::get_span_id() const {
     auto ctx = _span->GetContext();
     if (!ctx.IsValid()) return String();
     uint8_t buf[opentelemetry::trace::SpanId::kSize];
-    ctx.span_id().ToLowerBase16({buf, sizeof(buf)});
+    ctx.span_id().ToLowerBase16(
+        opentelemetry::nostd::span<char, opentelemetry::trace::SpanId::kSize * 2>(
+            reinterpret_cast<char*>(buf), sizeof(buf)));
     return String(to_hex(buf, sizeof(buf)).c_str());
 }
 
