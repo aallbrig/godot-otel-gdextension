@@ -145,7 +145,7 @@ jobs:
       - name: Run unit tests
         working-directory: demo
         run: |
-          $GODOT --headless \
+          $GODOT --headless --path . \
             -s res://addons/gdunit4/bin/GdUnitCmdTool.gd \
             --add res://test/unit \
             --report-directory /tmp/gdunit4-unit \
@@ -155,7 +155,7 @@ jobs:
       - name: Run integration tests (including installation validation)
         working-directory: demo
         run: |
-          $GODOT --headless \
+          $GODOT --headless --path . \
             -s res://addons/gdunit4/bin/GdUnitCmdTool.gd \
             --add res://test/integration \
             --report-directory /tmp/gdunit4-integration \
