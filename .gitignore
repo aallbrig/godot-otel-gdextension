@@ -35,7 +35,7 @@ Makefile
 .pre-commit-cache/
 
 # GDUnit4
-demo/addons/gdunit4/
+demo/addons/gdUnit4/
 demo/test-results/
 
 # Node dependencies

@@ -131,7 +131,7 @@ jobs:
         run: |
           curl -sL "https://github.com/godot-gdunit-labs/gdUnit4/archive/refs/tags/v6.1.3.tar.gz" \
             | tar -xz -C /tmp/
-          mv /tmp/gdUnit4-6.1.3/addons/gdUnit4 demo/addons/gdunit4
+          mv /tmp/gdUnit4-6.1.3/addons/gdUnit4 demo/addons/gdUnit4
 
       - name: Install Godot
         run: |
@@ -153,7 +153,7 @@ jobs:
         working-directory: demo
         run: |
           $GODOT --headless --path . \
-            -s res://addons/gdunit4/bin/GdUnitCmdTool.gd \
+            -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
             --add res://test/unit \
             --report-directory /tmp/gdunit4-unit \
             2>&1 | tee /tmp/gdunit4-unit.log
@@ -163,7 +163,7 @@ jobs:
         working-directory: demo
         run: |
           $GODOT --headless --path . \
-            -s res://addons/gdunit4/bin/GdUnitCmdTool.gd \
+            -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
             --add res://test/integration \
             --report-directory /tmp/gdunit4-integration \
             2>&1 | tee /tmp/gdunit4-integration.log
