@@ -127,6 +127,12 @@ jobs:
       - name: Make library executable
         run: chmod +x demo/addons/otel/bin/*.so || true
 
+      - name: Install GDUnit4
+        run: |
+          curl -sL "https://github.com/godot-gdunit-labs/gdUnit4/archive/refs/tags/v6.1.3.tar.gz" \
+            | tar -xz -C /tmp/
+          mv /tmp/gdUnit4-6.1.3/addons/gdUnit4 demo/addons/gdunit4
+
       - name: Install Godot
         run: |
           GODOT_VERSION="4.3-stable"
