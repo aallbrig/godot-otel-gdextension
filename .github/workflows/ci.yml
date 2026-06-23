@@ -8,6 +8,21 @@ on:
   workflow_call:
 
 jobs:
+  # ── Pre-commit checks (quality gates) ──────────────────────────────────────
+  pre-commit:
+    name: Pre-commit (gitleaks, formatting, YAML/TOML)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: pre-commit/action@v3.0.1
+
   # ── C++ lint: format check ────────────────────────────────────────────────
   lint-format:
     name: clang-format
@@ -22,8 +37,7 @@ jobs:
 
       - name: Check formatting
         run: |
-          find src/ -name '*.cpp' -o -name '*.h' \
-            | xargs clang-format --dry-run --Werror
+          find src/ \( -name '*.cpp' -o -name '*.h' \) -exec clang-format --dry-run --Werror {} \;
 
   # ── C++ build ─────────────────────────────────────────────────────────────
   build:
@@ -126,9 +140,9 @@ jobs:
         working-directory: demo
         run: |
           $GODOT --headless \
-            -s res://addons/gdunit4/runtest.gd \
+            -s res://addons/gdunit4/bin/GdUnitCmdTool.gd \
             --add res://test/unit \
-            --report-path /tmp/gdunit4-unit \
+            --report-directory /tmp/gdunit4-unit \
             2>&1 | tee /tmp/gdunit4-unit.log
           grep -E 'FAILED|ERROR' /tmp/gdunit4-unit.log && exit 1 || true
 
@@ -136,9 +150,9 @@ jobs:
         working-directory: demo
         run: |
           $GODOT --headless \
-            -s res://addons/gdunit4/runtest.gd \
+            -s res://addons/gdunit4/bin/GdUnitCmdTool.gd \
             --add res://test/integration \
-            --report-path /tmp/gdunit4-integration \
+            --report-directory /tmp/gdunit4-integration \
             2>&1 | tee /tmp/gdunit4-integration.log
           grep -E 'FAILED|ERROR' /tmp/gdunit4-integration.log && exit 1 || true
 
