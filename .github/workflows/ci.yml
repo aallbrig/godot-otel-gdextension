@@ -173,7 +173,7 @@ jobs:
         run: |
           echo "Checking addon structure..."
           test -f demo/addons/otel/otel.gdextension || (echo "Missing otel.gdextension"; exit 1)
-          test -f demo/addons/otel/bin/libotel.so || (echo "Missing libotel.so"; exit 1)
+          test -f demo/addons/otel/bin/libotel.linux.template_debug.x86_64.so || (echo "Missing libotel.linux.template_debug.x86_64.so"; exit 1)
           echo "✓ Addon structure valid and ready for installation"
 
       - name: Upload test reports
