@@ -34,5 +34,10 @@ Makefile
 # Pre-commit cache
 .pre-commit-cache/
 
-# GDUnit4 test reports
+# GDUnit4
+demo/addons/gdunit4/
 demo/test-results/
+
+# Node dependencies
+node_modules/
+.npm-cache/

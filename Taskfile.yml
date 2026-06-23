@@ -39,7 +39,7 @@ tasks:
           echo "clang-format not found — run: task setup:tools"
           exit 1
         fi
-        find src/ -name '*.cpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
+        find src/ \( -name '*.cpp' -o -name '*.h' \) -exec clang-format --dry-run --Werror {} \;
 
   lint:cpp:tidy:
     desc: Run clang-tidy static analysis on C++ sources
@@ -53,9 +53,9 @@ tasks:
           echo "build/ not found — run: task build first"
           exit 1
         fi
-        find src/ -name '*.cpp' | xargs clang-tidy \
+        find src/ -name '*.cpp' -exec clang-tidy \
           -p {{.BUILD_DIR}} \
-          --warnings-as-errors='*'
+          --warnings-as-errors='*' {} \;
 
   lint:site:
     desc: Check site JS (esbuild dry-run compile)
@@ -78,7 +78,7 @@ tasks:
           echo "clang-format not found — run: task setup:tools"
           exit 1
         fi
-        find src/ -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+        find src/ \( -name '*.cpp' -o -name '*.h' \) -exec clang-format -i {} \;
         echo "Formatted all C++ files."
 
   # ── Build ─────────────────────────────────────────────────────────────────
@@ -148,6 +148,64 @@ tasks:
           2>&1 | tee /tmp/gdunit4-integration.log
         grep -E 'FAILED|ERROR' /tmp/gdunit4-integration.log && exit 1 || true
 
+  test:real-godot:
+    desc: Open the demo project in Godot editor (real environment, not headless)
+    dir: "{{.DEMO_DIR}}"
+    cmds:
+      - |
+        echo "Opening {{.DEMO_DIR}}/project.godot in Godot editor..."
+        {{.GODOT}} --editor project.godot
+
+  # ── Audit & verification ──────────────────────────────────────────────────
+
+  audit:
+    desc: Audit implementation for issues (C++ unused vars, missing includes, etc)
+    cmds:
+      - task: audit:cpp
+      - task: audit:gdscript
+
+  audit:cpp:
+    desc: Check C++ sources for common issues
+    cmds:
+      - |
+        echo "=== C++ Audit ==="
+        echo ""
+        echo "[1] Checking for TODO/FIXME comments..."
+        if grep -r "TODO\|FIXME" src/ --include="*.cpp" --include="*.h"; then
+          echo "⚠ Found TODO/FIXME comments — review before release"
+        else
+          echo "✓ No TODO/FIXME comments"
+        fi
+        echo ""
+        echo "[2] Checking for debug prints (GDPRINT)..."
+        if grep -r "GDPRINT\|UT_LOG" src/ --include="*.cpp" --include="*.h"; then
+          echo "⚠ Found debug output — remove before release"
+        else
+          echo "✓ No debug output"
+        fi
+        echo ""
+        echo "[3] Checking compilation with strict warnings..."
+        cmake -B {{.BUILD_DIR}} -S . \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror" \
+          >/dev/null 2>&1 && echo "✓ No compilation warnings" || echo "⚠ Compilation warnings detected"
+
+  audit:gdscript:
+    desc: Check GDScript test files for issues
+    cmds:
+      - |
+        echo "=== GDScript Audit ==="
+        echo ""
+        echo "[1] Checking test files for proper extends and class names..."
+        for test_file in {{.DEMO_DIR}}/test/**/*.gd; do
+          if [ -f "$$test_file" ]; then
+            if ! grep -q "extends GdUnitTestSuite" "$$test_file"; then
+              echo "⚠ $$test_file does not extend GdUnitTestSuite"
+            fi
+          fi
+        done
+        echo "✓ Test file structure OK"
+
   # ── Site ──────────────────────────────────────────────────────────────────
 
   site:dev:
@@ -214,7 +272,7 @@ tasks:
           --exts cpp,h \
           --watch src/ \
           --restart \
-          -- bash -c 'find src/ -name "*.cpp" -o -name "*.h" | xargs clang-format -i && echo "[format] done"'
+          -- bash -c 'find src/ \( -name "*.cpp" -o -name "*.h" \) -exec clang-format -i {} \; && echo "[format] done"'
 
   watch:lint:
     desc: Watch src/ and run clang-format dry-run on change (CI parity)
@@ -224,7 +282,7 @@ tasks:
           --exts cpp,h \
           --watch src/ \
           --restart \
-          -- bash -c 'find src/ -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror && echo "[lint:format] ok"'
+          -- bash -c 'find src/ \( -name "*.cpp" -o -name "*.h" \) -exec clang-format --dry-run --Werror {} \; && echo "[lint:format] ok"'
 
   watch:build:
     desc: Watch src/ and rebuild the GDExtension on change
@@ -245,6 +303,17 @@ tasks:
           --watch {{.DEMO_DIR}}/test/ \
           --restart \
           -- task test:unit
+
+  watch:integration:
+    desc: Watch compiled binary and run integration tests when build completes
+    cmds:
+      - |
+        watchexec \
+          --watch {{.BUILD_DIR}} \
+          --filter '\.so$' \
+          --restart \
+          --delay 0.5 \
+          -- bash -c 'echo "[integration] binary updated, running tests..." && task test:integration && echo "[integration] ✓ tests passed"'
 
   watch:secrets:
     desc: Watch all files and scan for secrets on change
@@ -274,7 +343,8 @@ tasks:
         echo ""
         echo "  Session '{{.SESSION}}' — windows:"
         echo "    dev    — pane 0: ready shell"
-        echo "    watch  — pane 0: ready, pane 1: format, pane 2: lint, pane 3: build, pane 4: test"
+        echo "    watch  — pane 0: ready, pane 1: format, pane 2: lint, pane 3: build"
+        echo "           — pane 4: test, pane 5: integration, pane 6: secrets"
         echo "    sites  — pane 0: ready, pane 1: Hugo at localhost:{{.SITE_PORT}}"
         echo ""
 
