@@ -142,6 +142,13 @@ jobs:
           chmod +x "/tmp/Godot_v${GODOT_VERSION}_linux.x86_64"
           echo "GODOT=/tmp/Godot_v${GODOT_VERSION}_linux.x86_64" >> $GITHUB_ENV
 
+      - name: Import project (register GDScript classes)
+        working-directory: demo
+        run: |
+          # First run imports all resources so GDScript types (including GDUnit4
+          # classes like GdUnitTestCIRunner) are registered before test execution.
+          $GODOT --headless --path . --import 2>&1 | tail -5 || true
+
       - name: Run unit tests
         working-directory: demo
         run: |
